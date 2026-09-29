@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1117">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MN Dubber">
+  <title>MN DUBBER PRO - AI Video Dubbing Studio (Web & Mobile)</title>
+  <meta name="description" content="កម្មវិធីបកប្រែនិងបញ្ចូលសំឡេងវីដេអូជាភាសាខ្មែរដោយស្វ័យប្រវត្តិតាមរយៈ AI - ប្រើបានទាំងលើ iOS, Android និងកុំព្យូទ័រ">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Manifest & Favicon -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="64x64" href="favicon.png">
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+
+  <link rel="stylesheet" href="styles.css?v=16.0">
+</head>
+<body>
+  <div class="ambient-glow ambient-1"></div>
+  <div class="ambient-glow ambient-2"></div>
+
+  <div class="app-container">
+    <!-- Header / Navbar -->
+    <header class="app-header">
+      <div class="header-main-bar">
+        <div class="header-left">
+          <div class="brand-logo">
+            <div class="logo-icon">
+              <img src="icons/app-logo.png" alt="MN Dubber Pro" class="logo-img" />
+            </div>
+            <div class="logo-text">
+              <span class="logo-title">MN DUBBER</span>
+              <span class="logo-badge">WEB PRO</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="desktop-nav-wrapper">
+          <nav class="header-nav">
+            <button class="nav-btn active" data-tab="studioTab">
+              <span class="nav-icon">🎬</span>
+              <span class="nav-label">Dub Studio</span>
+            </button>
+            <button class="nav-btn" data-tab="tiktokTab">
+              <span class="nav-icon">📥</span>
+              <span class="nav-label">TikTok DL</span>
+            </button>
+            <button class="nav-btn" data-tab="voicesTab">
+              <span class="nav-icon">🎙️</span>
+              <span class="nav-label">Voice Studio</span>
+            </button>
+            <button class="nav-btn" data-tab="settingsTab">
+              <span class="nav-icon">⚙️</span>
+              <span class="nav-label">Settings</span>
+            </button>
+          </nav>
+        </div>
+
+        <div class="header-right">
+          <button id="mobileShareBtn" class="device-badge" title="Connect Mobile Phone">
+            <span class="dot-online"></span>
+            <span class="badge-text" id="serverIpBadge">📱 Mobile Wi-Fi</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- TAB 1: STUDIO (Main Dubbing Workflow) -->
+      <section id="studioTab" class="tab-pane active">
+        
+        <!-- Welcome Hero -->
+        <div class="hero-banner">
+          <div class="hero-badge">✨ ជំនាន់ថ្មីសម្រាប់ទូរស័ព្ទដៃ និងកុំព្យូទ័រ</div>
+          <h1 class="hero-title">បកប្រែ និងបញ្ចូលសំឡេងខ្មែរដោយ <span class="gradient-text">AI ស្វ័យប្រវត្ត</span></h1>
+          <p class="hero-subtitle">បញ្ចូលវីដេអូពីទូរស័ព្ទ iPhone, Android ឬកុំព្យូទ័រ ដើម្បី Dubbing សំឡេងខ្មែរធម្មជាតិដោយស្វ័យប្រវត្ត</p>
+        </div>
+
+        <!-- 3-Step Wizard Layout -->
+        <div class="studio-grid">
+          
+          <!-- Left Column: Upload & Video Preview -->
+          <div class="studio-card upload-column">
+            <div class="card-header">
+              <span class="step-num">១</span>
+              <div class="card-title-group">
+                <h2 class="card-title">ជ្រើសរើសវីដេអូ ឬសម្លេង</h2>
+                <p class="card-desc">គាំទ្រ MP4, MOV, MKV, MP3 ពីទូរស័ព្ទ ឬកុំព្យូទ័រ</p>
+              </div>
+            </div>
+
+            <!-- Drag & Drop / Tap Zone -->
+            <div id="dropZone" class="drop-zone">
+              <input type="file" id="videoFileInput" accept="video/mp4,video/quicktime,video/x-matroska,video/*,audio/*" class="file-input-hidden">
+              <div class="drop-zone-content" id="dropZonePrompt">
+                <div class="upload-icon-wrapper">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                </div>
+                <h3 class="upload-title">ចុចទីនេះ ឬទម្លាក់វីដេអូចូល</h3>
+                <p class="upload-hint">ជ្រើសរើសវីដេអូពី Camera Roll ឬ Files</p>
+                <button type="button" class="btn btn-secondary select-file-btn" id="browseFileBtn">
+                  <span>📂 ជ្រើសរើសឯកសារ</span>
+                </button>
+              </div>
+
+              <!-- Uploaded Media Preview Card -->
+              <div id="filePreviewCard" class="file-preview-card hidden">
+                <div class="video-preview-wrapper" id="videoPreviewWrapper">
+                  <div class="video-stage-box" id="videoStageBox">
+                    <video id="sourceVideoPlayer" controls playsinline></video>
+                    
+                    <!-- Fallback Placeholder when previewing before video file is loaded -->
+                    <div id="videoPlaceholderCanvas" class="video-placeholder-canvas hidden">
+                      <div class="placeholder-cinema-icon">🎬</div>
+                      <div class="placeholder-cinema-title">Live Studio Preview</div>
+                      <div class="placeholder-cinema-sub">អ្នកអាចអូស Logo, Blur, Text ទីនេះបានភ្លាមៗ</div>
+                    </div>
+
+                    <!-- Draggable Overlays Stage (100% matched to video pixels) -->
+                    <div id="overlayStage" class="overlay-stage">
+                      <!-- Blur Subtitle Box Overlay -->
+                      <div id="previewBlurBox" class="draggable-overlay overlay-blur-box hidden" title="អូសឡើង/ចុះ ដើម្បីប្ដូរទីតាំង">
+                        <div class="blur-box-inner">
+                          <div class="overlay-drag-handle-top" id="blurResizeTopHandle" title="អូសដើម្បីពង្រីកកម្ពស់"></div>
+                          <div class="overlay-badge blur-badge">
+                            <span>🔲 Blur Subtitle (អូសប្ដូរទីតាំង)</span>
+                          </div>
+                          <div class="overlay-drag-handle-bottom" id="blurResizeBottomHandle" title="អូសដើម្បីពង្រីកកម្ពស់"></div>
+                        </div>
+                      </div>
+
+                      <!-- Custom Text Banner Overlay -->
+                      <div id="previewCustomText" class="draggable-overlay overlay-text-box hidden" title="អូសដើម្បីប្ដូរទីតាំង">
+                        <div class="overlay-badge text-badge">
+                          <span>✍️ Text (អូសប្ដូរទីតាំង)</span>
+                        </div>
+                        <div id="previewCustomTextContent" class="preview-text-content">សម្រាយរឿង</div>
+                      </div>
+
+                      <!-- Logo Overlay -->
+                      <div id="previewLogo" class="draggable-overlay overlay-logo-box hidden" title="អូសដើម្បីប្ដូរទីតាំង">
+                        <div class="overlay-badge logo-badge">
+                          <span>🖼️ Logo (អូសប្ដូរទីតាំង)</span>
+                        </div>
+                        <img id="previewLogoImg" src="" alt="Logo" class="preview-logo-img hidden">
+                        <div id="previewLogoPlaceholder" class="preview-logo-placeholder">LOGO</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="file-info-row">
+                  <div class="file-meta">
+                    <span id="previewFileName" class="file-name">video.mp4</span>
+                    <span id="previewFileSize" class="file-size">0 MB</span>
+                  </div>
+                  <div style="display: flex; gap: 8px; align-items: center;">
+                    <span style="font-size: 11px; color: #94a3b8; display: flex; align-items: center; gap: 4px;">
+                      <span>✥</span> <span>Drag to Move Overlays</span>
+                    </span>
+                    <button type="button" id="removeFileBtn" class="btn-icon-danger" title="លុបឯកសារ">✕</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Upload Progress -->
+            <div id="uploadProgressBarContainer" class="upload-progress-container hidden">
+              <div class="upload-label-row">
+                <span id="uploadStatusText">កំពុង Upload ឡើង Server...</span>
+                <span id="uploadPercentText">0%</span>
+              </div>
+              <div class="progress-track">
+                <div id="uploadProgressBar" class="progress-fill" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: AI Dubbing Controls -->
+          <div class="studio-card controls-column">
+            <div class="card-header">
+              <span class="step-num">២</span>
+              <div class="card-title-group">
+                <h2 class="card-title">ការកំណត់សំឡេង និង AI</h2>
+                <p class="card-desc">ជ្រើសរើសសំឡេងខ្មែរ និងកែសម្រួលស្ទីលនិយាយ</p>
+              </div>
+            </div>
+
+            <!-- Voice Selection -->
+            <div class="control-group">
+              <label class="control-label" for="voiceSelect">
+                <span>សំឡេងអ្នកអាន (AI Voice)</span>
+                <button type="button" id="testVoiceBtn" class="btn-text-action">
+                  <span>🔊 ស្តាប់សាកល្បង</span>
+                </button>
+              </label>
+              <div class="select-wrapper">
+                <select id="voiceSelect" class="form-select">
+                  <option value="km-KH-PisethNeural" selected>ពិសិដ្ឋ (Piseth - ប្រុស / Male) ⭐ ពេញនិយម</option>
+                  <option value="km-KH-SreymomNeural">ស្រីមុំ (Sreymom - ស្រី / Female) ⭐ ពេញនិយម</option>
+                  <option value="en-US-GuyNeural">Guy (English - Male)</option>
+                  <option value="en-US-JennyNeural">Jenny (English - Female)</option>
+                  <option value="th-TH-NiwatNeural">Niwat (Thai - Male)</option>
+                  <option value="zh-CN-YunxiNeural">Yunxi (Chinese - Male)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Voice Mode Chips -->
+            <div class="control-group">
+              <label class="control-label">ទម្រង់សំឡេង (Voice Mode)</label>
+              <div class="chip-group">
+                <label class="chip-item">
+                  <input type="radio" name="voiceMode" value="auto" checked>
+                  <span class="chip-label">🔄 Auto (ស្វ័យប្រវត្ត)</span>
+                </label>
+                <label class="chip-item">
+                  <input type="radio" name="voiceMode" value="male">
+                  <span class="chip-label">👨 ប្រុសសុទ្ធ</span>
+                </label>
+                <label class="chip-item">
+                  <input type="radio" name="voiceMode" value="female">
+                  <span class="chip-label">👩 ស្រីសុទ្ធ</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Vocal Removal & Original Audio Options -->
+            <div class="form-group vocal-cut-group" style="margin-top: 6px; padding: 14px; background: rgba(15, 23, 42, 0.45); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <label class="form-label" style="margin: 0; display: flex; align-items: center; gap: 6px;">
+                  <span>✂️ កាត់សំឡេងនិយាយដើម (Vocal Removal)</span>
+                </label>
+                <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; font-size: 11px; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(52, 211, 153, 0.3); font-weight: 600;">
+                  ✨ AI Smart Cut
+                </span>
+              </div>
+              <p style="font-size: 11.5px; color: #94a3b8; margin: 0 0 10px 0; line-height: 1.4;">
+                កម្ចាត់សំឡេងមនុស្សនិយាយដើមចេញពីវីដេអូ ដោយរក្សាទុកតែភ្លេងកំដរ (BGM) និងសំឡេង Sound Effects
+              </p>
+              <div class="chip-group" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px;">
+                <label class="chip-item active-vocal-cut" id="vocalOptSmart">
+                  <input type="radio" name="vocalCutMode" value="smart-duck" checked>
+                  <span class="chip-label" style="text-align: center; width: 100%; padding: 8px 10px; font-weight: 600;">
+                    ✨ Smart Cut (ណែនាំ)
+                  </span>
+                </label>
+                <label class="chip-item" id="vocalOptKaraoke">
+                  <input type="radio" name="vocalCutMode" value="karaoke">
+                  <span class="chip-label" style="text-align: center; width: 100%; padding: 8px 10px;">
+                    🎙️ Center Vocal Cut
+                  </span>
+                </label>
+                <label class="chip-item" id="vocalOptClean">
+                  <input type="radio" name="vocalCutMode" value="clean-voice">
+                  <span class="chip-label" style="text-align: center; width: 100%; padding: 8px 10px;">
+                    🔇 បិទសំឡេងដើម (Pure Dub)
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Sliders: Rate, Pitch, Volumes -->
+            <div class="sliders-grid">
+              <!-- Speech Speed -->
+              <div class="slider-box">
+                <div class="slider-label-row">
+                  <span class="slider-title">⚡ ល្បឿននិយាយ (Speed)</span>
+                  <span id="rateValLabel" class="slider-val">ធម្មតា (+0%)</span>
+                </div>
+                <input type="range" id="rateSlider" min="-30" max="40" value="0" step="5" class="form-range">
+              </div>
+
+              <!-- Pitch Shift -->
+              <div class="slider-box">
+                <div class="slider-label-row">
+                  <span class="slider-title">🎵 កម្រិតសម្លេង (Pitch)</span>
+                  <span id="pitchValLabel" class="slider-val">ធម្មតា (+0Hz)</span>
+                </div>
+                <input type="range" id="pitchSlider" min="-30" max="30" value="0" step="5" class="form-range">
+              </div>
+
+              <!-- Background Audio Ducking -->
+              <div class="slider-box">
+                <div class="slider-label-row">
+                  <span class="slider-title">🎼 សំឡេងភ្លេងដើម (BGM Volume)</span>
+                  <span id="bgMusicValLabel" class="slider-val">15%</span>
+                </div>
+                <input type="range" id="bgMusicSlider" min="0" max="0.5" value="0.15" step="0.05" class="form-range">
+              </div>
+
+              <!-- Dub Voice Volume -->
+              <div class="slider-box">
+                <div class="slider-label-row">
+                  <span class="slider-title">🎙️ សំឡេងខ្មែរ Dub (Voice Vol)</span>
+                  <span id="dubVolValLabel" class="slider-val">100%</span>
+                </div>
+                <input type="range" id="dubVolSlider" min="0.5" max="2.0" value="1.0" step="0.1" class="form-range">
+              </div>
+            </div>
+
+            <!-- Video Studio Tools: Logo, Blur Subtitle, Custom Text -->
+            <div class="video-tools-accordion" style="margin-top: 15px; margin-bottom: 20px; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 12px; padding: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 10px;">
+                <span style="font-size: 14px; font-weight: 700; color: #f8fafc; display: flex; align-items: center; gap: 8px;">
+                  🎬 មុខងារបន្ថែមលើវីដេអូ (Studio Overlays)
+                </span>
+                <span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; font-size: 11px; padding: 3px 8px; border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.3);">
+                  Logo • Blur • Text
+                </span>
+              </div>
+
+              <!-- Live Drag & Move Tip Banner -->
+              <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 8px 12px; margin-bottom: 14px; font-size: 12px; color: #93c5fd; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                <span style="display: flex; align-items: center; gap: 6px;">
+                  <span>✨</span> <span>អ្នកអាចចុច និង<strong>អូស (Drag to Move)</strong> Logo, Blur, និង Text លើផ្ទាំងវីដេអូ</span>
+                </span>
+                <button type="button" id="scrollToPreviewBtn" class="btn btn-xs btn-primary" style="font-size: 11px; padding: 4px 10px; white-space: nowrap; cursor: pointer;">
+                  👁️ មើលលើផ្ទាំងវីដេអូ
+                </button>
+              </div>
+              <div class="tool-subcard" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 12px; margin-bottom: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" id="logoHeaderRow">
+                  <label style="margin: 0; font-size: 13px; font-weight: 600; color: #e2e8f0; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="logoEnabledToggle" style="width: 17px; height: 17px; cursor: pointer;">
+                    <span>🖼️ ដាក់ Logo (Watermark)</span>
+                  </label>
+                  <span id="logoStatusBadge" style="font-size: 11px; color: #94a3b8;">បិទ</span>
+                </div>
+
+                <div id="logoControlsPanel" style="display: none; margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(255, 255, 255, 0.1);">
+                  <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap;">
+                    <input type="file" id="logoFileInput" accept="image/*" style="display: none;">
+                    <button type="button" id="browseLogoBtn" class="btn btn-secondary btn-sm" style="font-size: 12px; padding: 6px 14px;">
+                      📁 ជ្រើសរើស Logo ផ្សេង
+                    </button>
+                    <button type="button" id="useAppLogoBtn" class="btn btn-primary btn-sm" style="font-size: 12px; padding: 6px 14px; background: linear-gradient(135deg, #6366f1, #3b82f6); border: none;">
+                      ⭐ ប្រើ Logo កម្មវិធី
+                    </button>
+                    <span id="selectedLogoName" style="font-size: 12px; color: #38bdf8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px;">មិនទាន់បានជ្រើស</span>
+                  </div>
+
+                  <!-- Quick Corner -->
+                  <div style="margin-bottom: 10px;">
+                    <div style="font-size: 11.5px; color: #94a3b8; margin-bottom: 4px;">ជ្រុងដាក់ Logo (Position):</div>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;" id="logoCornerButtons">
+                      <button type="button" class="btn btn-xs corner-btn active-corner" data-pos="top-right" style="padding: 5px; font-size: 11px;">លើ-ស្ដាំ</button>
+                      <button type="button" class="btn btn-xs corner-btn" data-pos="top-left" style="padding: 5px; font-size: 11px;">លើ-ឆ្វេង</button>
+                      <button type="button" class="btn btn-xs corner-btn" data-pos="bottom-right" style="padding: 5px; font-size: 11px;">ក្រោម-ស្ដាំ</button>
+                      <button type="button" class="btn btn-xs corner-btn" data-pos="bottom-left" style="padding: 5px; font-size: 11px;">ក្រោម-ឆ្វេង</button>
+                    </div>
+                  </div>
+
+                  <!-- Sliders Size & Opacity -->
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <div>
+                      <div style="display: flex; justify-content: space-between; font-size: 11.5px; color: #94a3b8; margin-bottom: 3px;">
+                        <span>ទំហំ Logo:</span>
+                        <span id="logoSizeVal">14%</span>
+                      </div>
+                      <input type="range" id="logoSizeSlider" min="5" max="35" value="14" step="1" class="form-range" style="height: 6px;">
+                    </div>
+                    <div>
+                      <div style="display: flex; justify-content: space-between; font-size: 11.5px; color: #94a3b8; margin-bottom: 3px;">
+                        <span>កម្រិតថ្លា (Opacity):</span>
+                        <span id="logoOpacityVal">90%</span>
+                      </div>
+                      <input type="range" id="logoOpacitySlider" min="20" max="100" value="90" step="5" class="form-range" style="height: 6px;">
+                    </div>
+                  </div>
+
+                  <!-- Remove Background (Chroma Key / Colorkey) -->
+                  <div style="background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.25); border-radius: 8px; padding: 8px 10px;">
+                    <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin: 0 0 6px 0;">
+                      <span style="font-size: 12px; font-weight: 600; color: #4ade80; display: flex; align-items: center; gap: 6px;">
+                        <input type="checkbox" id="logoRemoveBgToggle" checked style="width: 15px; height: 15px; cursor: pointer;">
+                        ✨ ផ្តាច់ផ្ទៃក្រោយ Logo (Remove Background)
+                      </span>
+                      <div style="display: flex; align-items: center; gap: 6px;">
+                        <input type="color" id="logoChromaColorPicker" value="#00FF00" style="width: 26px; height: 24px; padding: 0; border: none; border-radius: 4px; cursor: pointer; background: transparent;">
+                      </div>
+                    </label>
+                    <div style="display: flex; gap: 6px; align-items: center; font-size: 11px; color: #94a3b8;" id="chromaPresets">
+                      <span>រើសពណ៌ផ្ទៃ Logo៖</span>
+                      <button type="button" class="btn btn-xs chroma-preset-btn" data-color="#00FF00" style="padding: 2px 7px; font-size: 10px; background: rgba(34,197,94,0.2); color: #4ade80; border: 1px solid #22c55e;">បៃតង</button>
+                      <button type="button" class="btn btn-xs chroma-preset-btn" data-color="#000000" style="padding: 2px 7px; font-size: 10px; background: rgba(0,0,0,0.6); color: #e2e8f0; border: 1px solid #475569;">ខ្មៅ</button>
+                      <button type="button" class="btn btn-xs chroma-preset-btn" data-color="#FFFFFF" style="padding: 2px 7px; font-size: 10px; background: rgba(255,255,255,0.2); color: #ffffff; border: 1px solid #94a3b8;">ស</button>
+                      <button type="button" class="btn btn-xs chroma-preset-btn" data-color="#0000FF" style="padding: 2px 7px; font-size: 10px; background: rgba(59,130,246,0.2); color: #60a5fa; border: 1px solid #3b82f6;">ខៀវ</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tool 2: Blur Subtitle Box -->
+              <div class="tool-subcard" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 12px; margin-bottom: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" id="blurHeaderRow">
+                  <label style="margin: 0; font-size: 13px; font-weight: 600; color: #e2e8f0; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="blurEnabledToggle" style="width: 17px; height: 17px; cursor: pointer;">
+                    <span>🔲 បិទបាំង Subtitle ចាស់ (Blur Subtitle Box)</span>
+                  </label>
+                  <span id="blurStatusBadge" style="font-size: 11px; color: #94a3b8;">បិទ</span>
+                </div>
+
+                <div id="blurControlsPanel" style="display: none; margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(255, 255, 255, 0.1);">
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px;">
+                    <div>
+                      <div style="display: flex; justify-content: space-between; font-size: 11.5px; color: #94a3b8; margin-bottom: 3px;">
+                        <span>ទីតាំងកម្ពស់ (Y Position):</span>
+                        <span id="blurYVal">83%</span>
+                      </div>
+                      <input type="range" id="blurYSlider" min="50" max="95" value="83" step="1" class="form-range" style="height: 6px;">
+                    </div>
+                    <div>
+                      <div style="display: flex; justify-content: space-between; font-size: 11.5px; color: #94a3b8; margin-bottom: 3px;">
+                        <span>កម្រាស់ប្រអប់ (Height):</span>
+                        <span id="blurHeightVal">13%</span>
+                      </div>
+                      <input type="range" id="blurHeightSlider" min="5" max="25" value="13" step="1" class="form-range" style="height: 6px;">
+                    </div>
+                  </div>
+
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                      <div style="display: flex; justify-content: space-between; font-size: 11.5px; color: #94a3b8; margin-bottom: 3px;">
+                        <span>កម្រិតព្រិល (Strength):</span>
+                        <span id="blurStrengthVal">15</span>
+                      </div>
+                      <input type="range" id="blurStrengthSlider" min="5" max="35" value="15" step="2" class="form-range" style="height: 6px;">
+                    </div>
+                    <div>
+                      <div style="display: flex; justify-content: space-between; font-size: 11.5px; color: #94a3b8; margin-bottom: 3px;">
+                        <span>ស្រមោលខ្មៅ (Darkness):</span>
+                        <span id="blurDarknessVal">40%</span>
+                      </div>
+                      <input type="range" id="blurDarknessSlider" min="0" max="80" value="40" step="5" class="form-range" style="height: 6px;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tool 3: Custom Text (Watermark / Banner Text, not subtitle) -->
+              <div class="tool-subcard" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" id="customTextHeaderRow">
+                  <label style="margin: 0; font-size: 13px; font-weight: 600; color: #e2e8f0; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="customTextEnabledToggle" style="width: 17px; height: 17px; cursor: pointer;">
+                    <span>✍️ អក្សរផ្ទាល់ខ្លួនលើវីដេអូ (Custom Text Banner)</span>
+                  </label>
+                  <span id="customTextStatusBadge" style="font-size: 11px; color: #94a3b8;">បិទ</span>
+                </div>
+
+                <div id="customTextControlsPanel" style="display: none; margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(255, 255, 255, 0.1);">
+                  <div style="margin-bottom: 10px;">
+                    <div style="font-size: 11.5px; color: #94a3b8; margin-bottom: 4px;">អត្ថបទដែលត្រូវបង្ហាញ (មិនមែន Subtitle ទេ):</div>
+                    <input type="text" id="customTextInput" class="form-input" placeholder="ឧទាហរណ៍៖ សម្រាយរឿង • Facebook Page • TikTok..." style="padding: 7px 12px; font-size: 12.5px;">
+                  </div>
+
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <div>
+                      <div style="font-size: 11.5px; color: #94a3b8; margin-bottom: 4px;">ទីតាំងអក្សរ (Position):</div>
+                      <select id="customTextPositionSelect" class="form-select" style="padding: 6px 10px; font-size: 12px;">
+                        <option value="top-center" selected>លើ-កណ្តាល (Top Center)</option>
+                        <option value="top-right">លើ-ស្ដាំ (Top Right)</option>
+                        <option value="top-left">លើ-ឆ្វេង (Top Left)</option>
+                        <option value="bottom-center">ក្រោម-កណ្តាល (Bottom Center)</option>
+                        <option value="bottom-right">ក្រោម-ស្ដាំ (Bottom Right)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <div style="display: flex; justify-content: space-between; font-size: 11.5px; color: #94a3b8; margin-bottom: 4px;">
+                        <span>ទំហំអក្សរ:</span>
+                        <span id="customTextSizeVal">26px</span>
+                      </div>
+                      <input type="range" id="customTextSizeSlider" min="16" max="52" value="26" step="2" class="form-range" style="height: 6px;">
+                    </div>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; margin: 0; font-size: 12px; color: #cbd5e1;">
+                      <input type="checkbox" id="customTextBgToggle" checked style="width: 15px; height: 15px;">
+                      <span>ប្រអប់ផ្ទៃខ្មៅពីក្រោយ (Semi-dark box)</span>
+                    </label>
+
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      <span style="font-size: 11.5px; color: #94a3b8;">ពណ៌អក្សរ:</span>
+                      <input type="color" id="customTextColorPicker" value="#FFFFFF" style="width: 26px; height: 24px; padding: 0; border: none; border-radius: 4px; cursor: pointer; background: transparent;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Start Dubbing Button -->
+            <div class="action-btn-row">
+              <button id="startDubBtn" class="btn btn-primary btn-glow btn-block">
+                <span class="btn-icon">✨</span>
+                <span class="btn-text">ចាប់ផ្តើម AI Dubbing</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Real-Time Processing Card (Shows during dubbing) -->
+        <div id="processingCard" class="studio-card processing-card hidden">
+          <div class="processing-header">
+            <div class="spinner-pulse"></div>
+            <div class="processing-title-group">
+              <h3 id="processStepTitle" class="processing-title">AI កំពុងដំណើរការ...</h3>
+              <p id="processStepDesc" class="processing-desc">សូមរង់ចាំបន្តិច ប្រព័ន្ធកំពុងដំណើរការ...</p>
+            </div>
+            <div class="percent-badge" id="processPercentBadge">0%</div>
+          </div>
+
+          <div class="progress-track big-track">
+            <div id="dubProgressBar" class="progress-fill glow-fill" style="width: 0%"></div>
+          </div>
+
+          <!-- Multi-Step Indicators -->
+          <div class="steps-flow">
+            <div class="step-node active" id="node1">
+              <div class="node-circle">1</div>
+              <span class="node-text">ស្រង់សំឡេង</span>
+            </div>
+            <div class="step-divider"></div>
+            <div class="step-node" id="node2">
+              <div class="node-circle">2</div>
+              <span class="node-text">បកប្រែខ្មែរ</span>
+            </div>
+            <div class="step-divider"></div>
+            <div class="step-node" id="node3">
+              <div class="node-circle">3</div>
+              <span class="node-text">បញ្ចូលសំឡេង AI</span>
+            </div>
+            <div class="step-divider"></div>
+            <div class="step-node" id="node4">
+              <div class="node-circle">4</div>
+              <span class="node-text">លាយសំឡេង</span>
+            </div>
+            <div class="step-divider"></div>
+            <div class="step-node" id="node5">
+              <div class="node-circle">5</div>
+              <span class="node-text">Render HD</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Result Showcase (Shows when completed) -->
+        <div id="resultCard" class="studio-card result-card hidden">
+          <div class="result-header">
+            <div class="success-icon-badge">🎉</div>
+            <div class="result-title-group">
+              <h2 class="result-title">ការ Dubbing ទទួលបានជោគជ័យ!</h2>
+              <p class="result-subtitle">វីដេអូសំឡេងខ្មែររបស់អ្នករួចរាល់ហើយ អាចមើល និងទាញយកបានភ្លាមៗ</p>
+            </div>
+          </div>
+
+          <!-- Video Player Showcase -->
+          <div class="result-media-container">
+            <video id="resultVideoPlayer" controls playsinline class="result-video"></video>
+          </div>
+
+          <!-- Download Action Bar -->
+          <div class="downloads-action-grid">
+            <a id="downloadVideoBtn" href="#" download class="btn btn-download-primary">
+              <span class="dl-icon">🎬</span>
+              <span class="dl-text">
+                <span class="dl-main">ទាញយកវីដេអូ (MP4 HD)</span>
+                <span class="dl-sub">Full Dubbed Video</span>
+              </span>
+            </a>
+
+            <a id="downloadAudioBtn" href="#" download class="btn btn-download-secondary">
+              <span class="dl-icon">🎵</span>
+              <span class="dl-text">
+                <span class="dl-main">ទាញយកសំឡេង (MP3)</span>
+                <span class="dl-sub">Dubbed Audio Track</span>
+              </span>
+            </a>
+
+            <a id="downloadSrtBtn" href="#" download class="btn btn-download-secondary">
+              <span class="dl-icon">📄</span>
+              <span class="dl-text">
+                <span class="dl-main">ទាញយកអក្សររត់ (SRT)</span>
+                <span class="dl-sub">Khmer Subtitles</span>
+              </span>
+            </a>
+
+            <button type="button" id="dubAgainBtn" class="btn btn-download-secondary">
+              <span class="dl-icon">🔄</span>
+              <span class="dl-text">
+                <span class="dl-main">Dubbing វីដេអូថ្មី</span>
+                <span class="dl-sub">New Project</span>
+              </span>
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- TAB: TIKTOK DOWNLOADER & AUTO-DUB -->
+      <section id="tiktokTab" class="tab-pane hidden">
+        <div class="hero-banner">
+          <div class="hero-badge">📥 TikTok Video Downloader</div>
+          <h2 class="hero-title">ទាញយកវីដេអូ <span class="gradient-text">TikTok No-Watermark</span></h2>
+          <p class="hero-subtitle">ទាញយកវីដេអូកម្រិត HD ច្បាស់គ្មាន Logo និងអាចចុចបញ្ជូនទៅកាន់ Dub Studio ដើម្បីបញ្ចូលសំឡេងខ្មែរភ្លាមៗ</p>
+        </div>
+
+        <div class="tiktok-downloader-container">
+          <!-- Input Card -->
+          <div class="studio-card tiktok-input-card">
+            <div class="card-header-flex">
+              <h3 class="card-title">🔗 បញ្ចូល Link វីដេអូ TikTok</h3>
+              <span class="badge-source-info">✨ គាំទ្រ Drama/Episode, vt.tiktok.com & App links</span>
+            </div>
+            
+            <div class="tiktok-input-wrapper">
+              <div class="tiktok-input-inner">
+                <span class="tiktok-input-icon">🎵</span>
+                <input type="url" id="tiktokUrlInput" class="form-input tiktok-url-field" placeholder="បិទភ្ជាប់ Link TikTok នៅទីនេះ (ឧ. https://vt.tiktok.com/...)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+                <button type="button" id="tiktokClearBtn" class="btn-input-clear hidden" title="Clear input">✕</button>
+              </div>
+              <button type="button" id="tiktokPasteBtn" class="btn btn-secondary btn-paste" title="Paste from clipboard">
+                📋 បិទភ្ជាប់ (Paste)
+              </button>
+            </div>
+
+            <div class="tiktok-action-btns-grid">
+              <button type="button" id="tiktokFetchBtn" class="btn btn-primary btn-tiktok-action">
+                <span id="tiktokFetchSpinner" class="btn-spinner hidden"></span>
+                <span id="tiktokFetchIcon">🔍</span>
+                <span id="tiktokFetchText">ពិនិត្យ & មើលគំរូ (Fetch Video)</span>
+              </button>
+              <button type="button" id="tiktokQuickDubBtn" class="btn btn-emerald btn-tiktok-action">
+                <span id="tiktokQuickDubSpinner" class="btn-spinner hidden"></span>
+                <span>⚡</span>
+                <span id="tiktokQuickDubText">ទាញយក & យកទៅ Dub ភ្លាមៗ</span>
+              </button>
+            </div>
+
+            <div class="tiktok-hint-box">
+              <span class="hint-icon">💡</span>
+              <span class="hint-text">
+                <strong>វិធីងាយៗ៖</strong> ចូលកម្មវិធី TikTok -> ចុចប៊ូតុង <strong>Share (ចែករំលែក)</strong> -> ចុច <strong>Copy Link (ចម្លងតំណ)</strong> រួចយកមកចុច <strong>Paste</strong> នៅទីនេះ!
+              </span>
+            </div>
+          </div>
+
+          <!-- Loading State Box -->
+          <div id="tiktokLoadingState" class="studio-card tiktok-loading-card hidden">
+            <div class="tiktok-loading-spinner-ring"></div>
+            <h4 id="tiktokLoadingTitle">កំពុងដំណើរការទាញយកវីដេអូ...</h4>
+            <p id="tiktokLoadingSubtitle" class="text-muted">កំពុងដក Logo Watermark និងទាញយកកម្រិត HD ច្បាស់...</p>
+          </div>
+
+          <!-- Result Preview Card -->
+          <div id="tiktokResultCard" class="studio-card tiktok-result-card hidden">
+            <div class="tiktok-result-grid">
+              <!-- Video / Cover Preview -->
+              <div class="tiktok-media-col">
+                <div class="tiktok-media-box">
+                  <img id="tiktokCoverImg" src="" alt="TikTok Thumbnail" class="tiktok-cover-img" />
+                  <div class="tiktok-duration-badge" id="tiktokDurationBadge">00:00</div>
+                  <button type="button" id="tiktokPlayPreviewBtn" class="btn-play-tiktok-overlay" title="Play Preview">
+                    <span class="play-triangle">▶</span>
+                  </button>
+                  <video id="tiktokPreviewVideo" class="tiktok-preview-video hidden" controls playsinline></video>
+                </div>
+              </div>
+
+              <!-- Metadata & Actions -->
+              <div class="tiktok-info-col">
+                <div class="tiktok-badge-hd">✨ HD No-Watermark</div>
+                <h4 id="tiktokVideoTitle" class="tiktok-video-title">ចំណងជើងវីដេអូ</h4>
+                
+                <div class="tiktok-author-row">
+                  <img id="tiktokAuthorAvatar" src="" class="tiktok-author-avatar" alt="Avatar" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'40\' viewBox=\'0 0 40 40\'><circle cx=\'20\' cy=\'20\' r=\'20\' fill=\'%236366f1\'/><text x=\'20\' y=\'26\' text-anchor=\'middle\' fill=\'white\' font-size=\'18\'>🎵</text></svg>'" />
+                  <div class="tiktok-author-meta">
+                    <span id="tiktokAuthorName" class="tiktok-author-name">TikTok Creator</span>
+                    <span class="tiktok-platform-label">TikTok Creator</span>
+                  </div>
+                </div>
+
+                <div class="tiktok-meta-tags">
+                  <span class="meta-tag">✨ គ្មាន Watermark</span>
+                  <span class="meta-tag" id="tiktokDurationTag">⏱️ 0:00</span>
+                  <span class="meta-tag" id="tiktokQualityTag">🎬 MP4 HD</span>
+                  <span class="meta-tag" id="tiktokSizeTag">📦 0 MB</span>
+                </div>
+
+                <div class="tiktok-actions-stack">
+                  <button type="button" id="tiktokSendToDubBtn" class="btn btn-emerald btn-lg btn-block">
+                    <span class="btn-icon">🎬</span>
+                    <span class="btn-label-bold">យកទៅ Dub ភាសាខ្មែរភ្លាមៗ (Send to Dub Studio)</span>
+                  </button>
+
+                  <a id="tiktokDirectDownloadBtn" href="#" class="btn btn-primary btn-lg btn-block" download="tiktok_video.mp4">
+                    <span class="btn-icon">📥</span>
+                    <span class="btn-label-bold">ទាញយកទុកក្នុងម៉ាស៊ីន (Download MP4 HD)</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: VOICE STUDIO (Audition & Test Voices) -->
+      <section id="voicesTab" class="tab-pane hidden">
+        <div class="hero-banner">
+          <div class="hero-badge">🎙️ Voice Studio</div>
+          <h2 class="hero-title">តេស្តសំឡេង <span class="gradient-text">AI ភាសាខ្មែរ & អន្តរជាតិ</span></h2>
+          <p class="hero-subtitle">សាកល្បងសរសេរអត្ថបទ និងស្តាប់សំឡេង AI ភ្លាមៗនៅលើទូរស័ព្ទរបស់អ្នក</p>
+        </div>
+
+        <div class="voice-studio-grid">
+          <!-- Text Test Area -->
+          <div class="studio-card">
+            <h3 class="card-title">✍️ សាកល្បងសរសេរអក្សរ</h3>
+            <div class="control-group">
+              <textarea id="voiceTestText" class="form-textarea" rows="4" placeholder="វាយអត្ថបទភាសាខ្មែរ ឬភាសាអង់គ្លេសនៅទីនេះ...">សួស្តី! នេះគឺជាសំឡេងពិសិដ្ឋ បង្កើតដោយបញ្ញាសិប្បនិម្មិត AI Dubber។ ខ្ញុំអាចនិយាយបានយ៉ាងរលូន និងធម្មជាតិ។</textarea>
+            </div>
+
+            <div class="test-controls-row">
+              <div class="select-wrapper">
+                <select id="voiceTestSelect" class="form-select">
+                  <!-- Dynamically populated or defaults -->
+                </select>
+              </div>
+              <button type="button" id="playVoiceTestBtn" class="btn btn-primary">
+                <span id="playVoiceBtnIcon">🔊</span>
+                <span id="playVoiceBtnText">ស្តាប់សម្លេង</span>
+              </button>
+            </div>
+            
+            <audio id="voiceTestAudioPlayer" class="hidden"></audio>
+          </div>
+
+          <!-- Voices Cards Catalog -->
+          <div class="studio-card">
+            <h3 class="card-title">📋 បញ្ជីសំឡេងដែលមានក្នុងប្រព័ន្ធ</h3>
+            <div class="voice-cards-catalog" id="voiceCardsContainer">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: SETTINGS & MOBILE CONNECT -->
+      <section id="settingsTab" class="tab-pane hidden">
+        <div class="hero-banner">
+          <div class="hero-badge">⚙️ Settings & Device Connect</div>
+          <h2 class="hero-title">ការតភ្ជាប់ និង <span class="gradient-text">API Keys</span></h2>
+          <p class="hero-subtitle">ភ្ជាប់ទូរស័ព្ទ iPhone ឬ Android និងកំណត់ Google Gemini API Key</p>
+        </div>
+
+        <div class="settings-grid">
+          <!-- Mobile Connect Guide -->
+          <div class="studio-card">
+            <div class="card-header">
+              <span class="step-num">📱</span>
+              <div class="card-title-group">
+                <h3 class="card-title">របៀបបើកលើទូរស័ព្ទ iOS & Android</h3>
+                <p class="card-desc">ប្រើបានលើទូរស័ព្ទដៃដោយភ្ជាប់ Wi-Fi ជាមួយគ្នានឹងកុំព្យូទ័រ</p>
+              </div>
+            </div>
+
+            <div class="mobile-connect-box">
+              <div class="connect-step-item">
+                <div class="cs-num">1</div>
+                <div class="cs-content">
+                  <strong>ភ្ជាប់ Wi-Fi តែមួយ៖</strong>
+                  <p>សូមប្រាកដថាទូរស័ព្ទ និងកុំព្យូទ័ររបស់អ្នកភ្ជាប់ Wi-Fi តែមួយ។</p>
+                </div>
+              </div>
+
+              <div class="connect-step-item">
+                <div class="cs-num">2</div>
+                <div class="cs-content">
+                  <strong>បើក Browser (Safari លើ iPhone ឬ Chrome លើ Android)៖</strong>
+                  <p>វាយអាសយដ្ឋានខាងក្រោមចូលទៅក្នុងទូរស័ព្ទ៖</p>
+                  <div class="ip-copy-box">
+                    <code id="displayMobileUrl">http://...:8000</code>
+                    <button type="button" id="copyUrlBtn" class="btn-copy">ចម្លង (Copy)</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="connect-step-item">
+                <div class="cs-num">3</div>
+                <div class="cs-content">
+                  <strong>ដំឡើងជា App (PWA)៖</strong>
+                  <p>• លើ <strong>iPhone (Safari)</strong>: ចុចប៊ូតុង <strong>Share</strong> (សញ្ញាព្រួញឡើងលើ) -> ចុច <strong>"Add to Home Screen"</strong><br>
+                  • លើ <strong>Android (Chrome)</strong>: ចុចចំណុច ៣ នៅជ្រុងលើ -> ចុច <strong>"Install App"</strong> ឬ <strong>"Add to Home Screen"</strong></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- API Key Settings -->
+          <div class="studio-card">
+            <div class="card-header">
+              <span class="step-num">🔑</span>
+              <div class="card-title-group">
+                <h3 class="card-title">AI Translation API Key</h3>
+                <p class="card-desc">គាំទ្រគ្រប់ប្រភេទ API Key (Google Gemini, OpenAI ឬ Key ផ្សេងៗ)</p>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <div class="api-key-header-row">
+                <label class="control-label" for="geminiKeyInput">API Key (Optional)</label>
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="btn-get-key">
+                  <span>🔑 យក Free Key ↗</span>
+                </a>
+              </div>
+              <input type="password" id="geminiKeyInput" class="form-input" placeholder="បិទភ្ជាប់ (Paste) API Key ណាមួយក៏បាន...">
+              <div class="api-key-guide-card">
+                <p class="guide-title">📌 ព័ត៌មានបន្ថែម៖</p>
+                <ul class="guide-list">
+                  <li>គាំទ្រគ្រប់ទម្រង់ API Key ទាំងអស់ (Google Gemini, OpenAI, Claude, Groq...) មិនកំណត់ទម្រង់ឡើយ</li>
+                  <li>បើគ្មាន API Key ក៏ប្រព័ន្ធនៅតែបកប្រែវីដេអូដោយស្វ័យប្រវត្ត (Free AI Translation) បានធម្មតា</li>
+                </ul>
+                <p class="field-hint">💡 ទិន្នន័យ Key ត្រូវបានរក្សាទុកដោយសុវត្ថិភាពលើ Device របស់អ្នកប៉ុណ្ណោះ។</p>
+              </div>
+            </div>
+
+            <button type="button" id="saveSettingsBtn" class="btn btn-primary">
+              <span>💾 រក្សាទុកការកំណត់</span>
+            </button>
+            <span id="saveStatusMsg" class="save-status-text"></span>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>MN DUBBER PRO © 2026 - AI Video Dubbing Studio (iOS, Android & Web). All rights reserved.</p>
+    </footer>
+  </div>
+
+  <!-- Mobile Bottom Tab Bar (Fixed cleanly at bottom of phone screen) -->
+  <nav class="mobile-bottom-nav">
+    <button class="nav-btn active" data-tab="studioTab">
+      <span class="nav-icon">🎬</span>
+      <span class="nav-label">Dub Studio</span>
+    </button>
+    <button class="nav-btn" data-tab="tiktokTab">
+      <span class="nav-icon">📥</span>
+      <span class="nav-label">TikTok DL</span>
+    </button>
+    <button class="nav-btn" data-tab="voicesTab">
+      <span class="nav-icon">🎙️</span>
+      <span class="nav-label">Voice Studio</span>
+    </button>
+    <button class="nav-btn" data-tab="settingsTab">
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-label">Settings</span>
+    </button>
+  </nav>
+
+  <!-- Mobile Connect & QR Code Modal -->
+  <div id="mobileShareModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-icon">📱</span>
+          <h3 class="modal-title">បើកប្រើលើទូរស័ព្ទដៃ (iOS & Android)</h3>
+        </div>
+        <button id="closeMobileModalBtn" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-subtitle">សម្រាប់អ្នកប្រើប្រាស់ដែលគ្មានកុំព្យូទ័រ អាចប្រើទូរស័ព្ទដៃផ្ទាល់បានដោយឥតគិតថ្លៃ ១០០%៖</p>
+
+        <!-- QR Code Box -->
+        <div class="qr-code-box">
+          <img id="mobileQrImg" src="" alt="Scan QR Code" class="qr-img" />
+          <span class="qr-caption">យកកាមេរ៉ា iPhone ឬ Android មក Scan ដើម្បីបើកភ្លាម</span>
+        </div>
+
+        <!-- 1. Online Public Link (When cloudflare tunnel is on) -->
+        <div id="onlineLinkBox" class="link-card-box highlight hidden">
+          <div class="link-label-group">
+            <span class="status-dot-pulse"></span>
+            <strong>🌐 Public Online Link (គ្រប់ទីកន្លែង):</strong>
+          </div>
+          <div class="link-input-group">
+            <input type="text" id="onlineUrlInput" readonly class="share-url-input" />
+            <button id="copyOnlineUrlBtn" class="copy-url-btn">📋 Copy</button>
+          </div>
+          <span class="link-hint">ប្រើបានទាំងលើ 4G/5G/Wi-Fi ដោយមិនបាច់មានកុំព្យូទ័រនៅក្បែរឡើយ។</span>
+        </div>
+
+        <!-- 2. Local Wi-Fi Link -->
+        <div class="link-card-box">
+          <div class="link-label-group">
+            <span>📶 Local Wi-Fi Link:</span>
+          </div>
+          <div class="link-input-group">
+            <input type="text" id="wifiUrlInput" readonly class="share-url-input" />
+            <button id="copyWifiUrlBtn" class="copy-url-btn">📋 Copy</button>
+          </div>
+          <span class="link-hint">ប្រើសម្រាប់ទូរស័ព្ទដែលភ្ជាប់ Wi-Fi តែមួយជាមួយកុំព្យូទ័រ។</span>
+        </div>
+
+        <!-- PWA Instructions -->
+        <div class="pwa-guide-box">
+          <div class="guide-item">
+            <span class="guide-os">🍏 iPhone (Safari):</span>
+            <span class="guide-step">ចុច Share (សញ្ញាព្រួញ ⬆️) ➡️ ជ្រើសរើស <strong>"Add to Home Screen"</strong></span>
+          </div>
+          <div class="guide-item">
+            <span class="guide-os">🤖 Android (Chrome):</span>
+            <span class="guide-step">ចុចសញ្ញាចុច ៣ (⋮) ➡️ ជ្រើសរើស <strong>"Install App"</strong> ឬ <strong>"Add to Home Screen"</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="app.js?v=15.0"></script>
+</body>
+</html>
