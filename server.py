@@ -50,6 +50,31 @@ app.add_middleware(
 # In-memory store for active tasks & connected WebSocket clients
 TASKS: Dict[str, Dict[str, Any]] = {}
 WS_CLIENTS: Dict[str, list] = {}
+JOB_LOCK = asyncio.Lock()
+
+async def auto_clean_temp_files():
+    """Background task to clean up old temp and render files older than 3 hours for 24/7 rendering stability."""
+    while True:
+        try:
+            await asyncio.sleep(1800)  # Every 30 minutes
+            now = time.time()
+            cutoff = now - (3 * 3600)
+            for folder in [UPLOADS_DIR, OUTPUTS_DIR]:
+                if not os.path.exists(folder):
+                    continue
+                for fname in os.listdir(folder):
+                    fpath = os.path.join(folder, fname)
+                    if os.path.isfile(fpath) and os.path.getmtime(fpath) < cutoff:
+                        try:
+                            os.remove(fpath)
+                        except Exception:
+                            pass
+        except Exception:
+            await asyncio.sleep(60)
+
+@app.on_event("startup")
+async def on_startup():
+    asyncio.create_task(auto_clean_temp_files())
 
 class VoicePreviewRequest(BaseModel):
     text: str
@@ -247,79 +272,89 @@ async def run_dub_job_task(task_id: str, req: DubRequest):
         await broadcast_progress(task_id, {"status": "failed", "error": "Input file not found."})
         return
 
-    def on_progress(p_data: Dict[str, Any]):
-        asyncio.create_task(broadcast_progress(task_id, p_data))
-
-    logo_path = os.path.join(UPLOADS_DIR, req.logoFileId) if (req.logoEnabled and req.logoFileId) else None
-    if logo_path and not os.path.exists(logo_path):
-        logo_path = None
-
-    job = DubbingJob(
-        task_id=task_id,
-        input_video_path=input_path,
-        output_dir=OUTPUTS_DIR,
-        voice_id=req.voiceId,
-        voice_mode=req.voiceMode,
-        vocal_cut_mode=req.vocalCutMode,
-        bg_music_volume=req.bgMusicVolume,
-        dub_volume=req.dubVolume,
-        rate=req.rate,
-        pitch=req.pitch,
-        gemini_api_key=req.geminiApiKey,
-        # Video overlays
-        logo_enabled=req.logoEnabled and bool(logo_path),
-        logo_path=logo_path,
-        logo_position=req.logoPosition,
-        logo_x=req.logoX,
-        logo_y=req.logoY,
-        logo_size=req.logoSize,
-        logo_opacity=req.logoOpacity,
-        logo_remove_bg=req.logoRemoveBg,
-        logo_chroma_color=req.logoChromaColor,
-        blur_enabled=req.blurEnabled,
-        blur_y=req.blurY,
-        blur_height=req.blurHeight,
-        blur_width=req.blurWidth,
-        blur_x=req.blurX,
-        blur_strength=req.blurStrength,
-        blur_darkness=req.blurDarkness,
-        custom_text_enabled=req.customTextEnabled and bool(req.customText.strip()),
-        custom_text=req.customText.strip(),
-        custom_text_position=req.customTextPosition,
-        custom_text_x=req.customTextX,
-        custom_text_y=req.customTextY,
-        custom_text_size=req.customTextSize,
-        custom_text_font_size_percent=req.customTextFontSizePercent,
-        custom_text_color=req.customTextColor,
-        custom_text_bg=req.customTextBg,
-        progress_callback=on_progress
-    )
-
-    try:
-        result = await job.execute()
-        TASKS[task_id]["status"] = "completed"
-        TASKS[task_id]["percent"] = 100
-        TASKS[task_id]["result"] = {
-            "videoUrl": f"/api/download/{task_id}/video",
-            "audioUrl": f"/api/download/{task_id}/audio",
-            "srtUrl": f"/api/download/{task_id}/srt",
-            "segmentsCount": result.get("segmentsCount", 0),
-            "duration": result.get("duration", 0)
-        }
+    if JOB_LOCK.locked():
         await broadcast_progress(task_id, {
-            "status": "completed",
-            "percent": 100,
-            "step": "ជោគជ័យ ១០០% (Completed!)",
-            "result": TASKS[task_id]["result"]
+            "taskId": task_id,
+            "percent": 2,
+            "step": "កំពុងរង់ចាំក្នុងជួរ Render (Queued)",
+            "details": "កំពុងរង់ចាំ Render វីដេអូមុនចប់។ វីដេអូរបស់អ្នកនឹងចាប់ផ្ដើមបន្ទាប់ដោយស្វ័យប្រវត្តិ...",
+            "timestamp": time.time()
         })
-    except Exception as e:
-        TASKS[task_id]["status"] = "failed"
-        TASKS[task_id]["error"] = str(e)
-        await broadcast_progress(task_id, {
-            "status": "failed",
-            "percent": 0,
-            "error": str(e)
-        })
+
+    async with JOB_LOCK:
+        def on_progress(p_data: Dict[str, Any]):
+            asyncio.create_task(broadcast_progress(task_id, p_data))
+
+        logo_path = os.path.join(UPLOADS_DIR, req.logoFileId) if (req.logoEnabled and req.logoFileId) else None
+        if logo_path and not os.path.exists(logo_path):
+            logo_path = None
+
+        job = DubbingJob(
+            task_id=task_id,
+            input_video_path=input_path,
+            output_dir=OUTPUTS_DIR,
+            voice_id=req.voiceId,
+            voice_mode=req.voiceMode,
+            vocal_cut_mode=req.vocalCutMode,
+            bg_music_volume=req.bgMusicVolume,
+            dub_volume=req.dubVolume,
+            rate=req.rate,
+            pitch=req.pitch,
+            gemini_api_key=req.geminiApiKey,
+            # Video overlays
+            logo_enabled=req.logoEnabled and bool(logo_path),
+            logo_path=logo_path,
+            logo_position=req.logoPosition,
+            logo_x=req.logoX,
+            logo_y=req.logoY,
+            logo_size=req.logoSize,
+            logo_opacity=req.logoOpacity,
+            logo_remove_bg=req.logoRemoveBg,
+            logo_chroma_color=req.logoChromaColor,
+            blur_enabled=req.blurEnabled,
+            blur_y=req.blurY,
+            blur_height=req.blurHeight,
+            blur_width=req.blurWidth,
+            blur_x=req.blurX,
+            blur_strength=req.blurStrength,
+            blur_darkness=req.blurDarkness,
+            custom_text_enabled=req.customTextEnabled and bool(req.customText.strip()),
+            custom_text=req.customText.strip(),
+            custom_text_position=req.customTextPosition,
+            custom_text_x=req.customTextX,
+            custom_text_y=req.customTextY,
+            custom_text_size=req.customTextSize,
+            custom_text_font_size_percent=req.customTextFontSizePercent,
+            custom_text_color=req.customTextColor,
+            custom_text_bg=req.customTextBg,
+            progress_callback=on_progress
+        )
+
+        try:
+            result = await job.execute()
+            TASKS[task_id]["status"] = "completed"
+            TASKS[task_id]["percent"] = 100
+            TASKS[task_id]["result"] = {
+                "videoUrl": f"/api/download/{task_id}/video",
+                "audioUrl": f"/api/download/{task_id}/audio",
+                "srtUrl": f"/api/download/{task_id}/srt",
+                "segmentsCount": result.get("segmentsCount", 0),
+                "duration": result.get("duration", 0)
+            }
+            await broadcast_progress(task_id, {
+                "status": "completed",
+                "percent": 100,
+                "step": "ជោគជ័យ ១០០% (Completed!)",
+                "result": TASKS[task_id]["result"]
+            })
+        except Exception as e:
+            TASKS[task_id]["status"] = "failed"
+            TASKS[task_id]["error"] = str(e)
+            await broadcast_progress(task_id, {
+                "status": "failed",
+                "percent": 0,
+                "error": str(e)
+            })
 
 @app.post("/api/dub")
 async def start_dubbing(req: DubRequest):

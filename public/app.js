@@ -1224,6 +1224,42 @@ function initFileUpload() {
   });
 }
 
+let preUploadPromise = null;
+
+function startBackgroundPreUpload(file) {
+  if (!file) return;
+  state.uploadedFileId = null;
+  const badge = document.getElementById('previewUploadBadge');
+  if (badge) {
+    badge.textContent = '☁️ កំពុង Upload... 0%';
+    badge.style.display = 'inline-block';
+    badge.style.color = '#38bdf8';
+    badge.style.background = 'rgba(56, 189, 248, 0.15)';
+  }
+
+  preUploadPromise = uploadFileWithProgress(file, (pct) => {
+    if (badge && !state.uploadedFileId) {
+      badge.textContent = `☁️ កំពុង Upload... ${pct}%`;
+    }
+  }).then((fileId) => {
+    state.uploadedFileId = fileId;
+    if (badge) {
+      badge.textContent = '✅ Upload រួចរាល់';
+      badge.style.color = '#4ade80';
+      badge.style.background = 'rgba(34, 197, 94, 0.15)';
+    }
+    return fileId;
+  }).catch((err) => {
+    console.warn("Background upload notice:", err);
+    if (badge) {
+      badge.textContent = '⚠️ នឹង Upload ពេលចុច Dubbing';
+      badge.style.color = '#f59e0b';
+      badge.style.background = 'rgba(245, 158, 11, 0.15)';
+    }
+    return null;
+  });
+}
+
 function handleSelectedFile(file) {
   state.selectedFile = file;
   state.uploadedFileId = null;
@@ -1242,11 +1278,18 @@ function handleSelectedFile(file) {
   elements.startDubBtn.disabled = false;
 
   showToast(`បានជ្រើសរើសឯកសារ: ${file.name}`, 'success');
+
+  // Immediately upload in background so user has 0s upload wait time when clicking Dub!
+  startBackgroundPreUpload(file);
 }
 
 function resetFileSelection() {
   state.selectedFile = null;
   state.uploadedFileId = null;
+  preUploadPromise = null;
+  const badge = document.getElementById('previewUploadBadge');
+  if (badge) badge.style.display = 'none';
+
   elements.videoFileInput.value = '';
   elements.sourceVideoPlayer.pause();
   elements.sourceVideoPlayer.src = '';
@@ -1268,7 +1311,9 @@ function resetFileSelection() {
   }
 
   elements.startDubBtn.disabled = true;
-  elements.uploadProgressBarContainer.classList.add('hidden');
+  if (elements.uploadProgressBarContainer) {
+    elements.uploadProgressBarContainer.classList.add('hidden');
+  }
 }
 
 function formatBytes(bytes) {
@@ -1399,14 +1444,21 @@ async function startDubbingProcess() {
   elements.resultCard.classList.add('hidden');
   elements.processingCard.classList.remove('hidden');
 
-  updateProgress(5, "កំពុង Upload វីដេអូឡើង Server...", "Preparing file upload...");
-
   try {
-    // 1. Upload File with XHR progress (or reuse if already downloaded from TikTok)
+    // 1. Ensure Video is Uploaded (Zero wait if pre-uploaded in background!)
     let fileId = state.uploadedFileId;
     if (!fileId) {
-      fileId = await uploadFileWithProgress(state.selectedFile);
-      state.uploadedFileId = fileId;
+      updateProgress(5, "កំពុង Upload វីដេអូឡើង Server...", "Preparing file upload...");
+      if (preUploadPromise) {
+        fileId = await preUploadPromise;
+      }
+      if (!fileId) {
+        fileId = await uploadFileWithProgress(state.selectedFile, (pct) => {
+          const mappedPct = Math.min(15, Math.max(5, Math.round(pct * 0.15)));
+          updateProgress(mappedPct, `កំពុង Upload វីដេអូ (${pct}%)`, "Uploading video to server...");
+        });
+        state.uploadedFileId = fileId;
+      }
     }
 
     // 2. Start Dubbing Job
@@ -1487,10 +1539,12 @@ async function startDubbingProcess() {
   }
 }
 
-function uploadFileWithProgress(file) {
+function uploadFileWithProgress(file, onProgress) {
   return new Promise((resolve, reject) => {
-    elements.uploadProgressBarContainer.classList.remove('hidden');
-    elements.uploadProgressBar.style.width = '0%';
+    if (elements.uploadProgressBarContainer) {
+      elements.uploadProgressBarContainer.classList.remove('hidden');
+      if (elements.uploadProgressBar) elements.uploadProgressBar.style.width = '0%';
+    }
 
     const xhr = new XMLHttpRequest();
     const formData = new FormData();
@@ -1499,8 +1553,9 @@ function uploadFileWithProgress(file) {
     xhr.upload.addEventListener('progress', (e) => {
       if (e.lengthComputable) {
         const pct = Math.round((e.loaded / e.total) * 100);
-        elements.uploadProgressBar.style.width = `${pct}%`;
-        elements.uploadPercentText.textContent = `${pct}%`;
+        if (elements.uploadProgressBar) elements.uploadProgressBar.style.width = `${pct}%`;
+        if (elements.uploadPercentText) elements.uploadPercentText.textContent = `${pct}%`;
+        if (onProgress) onProgress(pct);
       }
     });
 
@@ -1509,7 +1564,9 @@ function uploadFileWithProgress(file) {
         if (xhr.status >= 200 && xhr.status < 300) {
           try {
             const res = JSON.parse(xhr.responseText);
-            elements.uploadProgressBarContainer.classList.add('hidden');
+            if (elements.uploadProgressBarContainer) {
+              elements.uploadProgressBarContainer.classList.add('hidden');
+            }
             resolve(res.fileId);
           } catch (e) {
             reject(new Error('Invalid upload response'));
