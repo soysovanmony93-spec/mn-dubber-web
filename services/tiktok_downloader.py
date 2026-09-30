@@ -2,7 +2,6 @@ import os
 import re
 import uuid
 import requests
-import yt_dlp
 from typing import Dict, Any, Optional
 
 DEFAULT_HEADERS = {
@@ -135,6 +134,7 @@ def fetch_via_tikwm(url: str) -> Optional[Dict[str, Any]]:
 def fetch_via_ytdlp(url: str) -> Optional[Dict[str, Any]]:
     """Fallback fetch metadata using yt-dlp."""
     try:
+        import yt_dlp
         ydl_opts = {
             'quiet': True,
             'no_warnings': True,
@@ -259,33 +259,37 @@ def download_video_file(raw_url: str, output_dir: str) -> Dict[str, Any]:
 
     # Fallback to yt-dlp if direct streams didn't succeed
     if not downloaded:
-        ydl_opts = {
-            'outtmpl': os.path.join(output_dir, f"tiktok_{uuid.uuid4().hex[:12]}.%(ext)s"),
-            'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
-            'merge_output_format': 'mp4',
-            'quiet': True,
-            'no_warnings': True,
-            'http_headers': DEFAULT_HEADERS
-        }
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            canonical_url = resolve_canonical_url(clean_url)
-            extracted = ydl.extract_info(canonical_url or clean_url, download=True)
-            actual_filename = ydl.prepare_filename(extracted)
-            if not actual_filename.endswith(".mp4"):
-                actual_filename = os.path.splitext(actual_filename)[0] + ".mp4"
-            
-            if os.path.exists(actual_filename):
-                file_id = os.path.basename(actual_filename)
-                dest_path = actual_filename
-                downloaded = True
-                if not info:
-                    info = {
-                        "title": extracted.get("title") or "TikTok Video",
-                        "author": extracted.get("uploader") or "Creator",
-                        "avatar": "",
-                        "cover": extracted.get("thumbnail") or "",
-                        "duration": extracted.get("duration", 0)
-                    }
+        try:
+            import yt_dlp
+            ydl_opts = {
+                'outtmpl': os.path.join(output_dir, f"tiktok_{uuid.uuid4().hex[:12]}.%(ext)s"),
+                'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+                'merge_output_format': 'mp4',
+                'quiet': True,
+                'no_warnings': True,
+                'http_headers': DEFAULT_HEADERS
+            }
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                canonical_url = resolve_canonical_url(clean_url)
+                extracted = ydl.extract_info(canonical_url or clean_url, download=True)
+                actual_filename = ydl.prepare_filename(extracted)
+                if not actual_filename.endswith(".mp4"):
+                    actual_filename = os.path.splitext(actual_filename)[0] + ".mp4"
+                
+                if os.path.exists(actual_filename):
+                    file_id = os.path.basename(actual_filename)
+                    dest_path = actual_filename
+                    downloaded = True
+                    if not info:
+                        info = {
+                            "title": extracted.get("title") or "TikTok Video",
+                            "author": extracted.get("uploader") or "Creator",
+                            "avatar": "",
+                            "cover": extracted.get("thumbnail") or "",
+                            "duration": extracted.get("duration", 0)
+                        }
+        except Exception as e:
+            print(f"[TikTokDownloader] yt-dlp download failed: {e}")
 
     if not downloaded or not os.path.exists(dest_path):
         raise RuntimeError("ការទាញយកវីដេអូបានបរាជ័យ (Video download failed). Please check the link.")
